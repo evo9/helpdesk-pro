@@ -1,0 +1,29 @@
+# Environment
+.env
+.env.local
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# PHP / Symfony (api/)
+api/vendor/
+api/var/
+api/.env.local
+api/.env.local.php
+api/.env.*.local
+api/config/secrets/prod/prod.decrypt.private.php
+api/public/bundles/
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+
+# Docker
+pgadmin_data/

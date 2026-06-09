@@ -1,0 +1,134 @@
+services:
+
+  php:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+      target: dev
+    volumes:
+      - ./api:/var/www/html
+    environment:
+      - APP_ENV=${APP_ENV:-dev}
+      - "DATABASE_URL=postgresql://${POSTGRES_USER:-helpdesk}:${POSTGRES_PASSWORD:-helpdesk}@postgres:5432/${POSTGRES_DB:-helpdesk}?serverVersion=16&charset=utf8"
+      - MESSENGER_TRANSPORT_DSN=doctrine://default
+      - MAILER_DSN=smtp://mailtrap:1025
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - internal
+
+  nginx:
+    build:
+      context: docker/nginx
+      dockerfile: Dockerfile
+      args:
+        ENV: dev
+    ports:
+      - "8080:80"
+    volumes:
+      - ./api/public:/var/www/html/public:ro
+    depends_on:
+      - php
+      - frontend
+    networks:
+      - internal
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      target: dev
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      - VITE_API_URL=http://localhost:8080/api
+    networks:
+      - internal
+
+  messenger:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+      target: dev
+    command: php bin/console messenger:consume async --time-limit=3600 --memory-limit=128M -vv
+    volumes:
+      - ./api:/var/www/html
+    environment:
+      - APP_ENV=${APP_ENV:-dev}
+      - "DATABASE_URL=postgresql://${POSTGRES_USER:-helpdesk}:${POSTGRES_PASSWORD:-helpdesk}@postgres:5432/${POSTGRES_DB:-helpdesk}?serverVersion=16&charset=utf8"
+      - MESSENGER_TRANSPORT_DSN=doctrine://default
+      - MAILER_DSN=smtp://mailtrap:1025
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - internal
+
+  scheduler:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+      target: dev
+    command: php bin/console messenger:consume scheduler_main --time-limit=3600 -vv
+    volumes:
+      - ./api:/var/www/html
+    environment:
+      - APP_ENV=${APP_ENV:-dev}
+      - "DATABASE_URL=postgresql://${POSTGRES_USER:-helpdesk}:${POSTGRES_PASSWORD:-helpdesk}@postgres:5432/${POSTGRES_DB:-helpdesk}?serverVersion=16&charset=utf8"
+      - MESSENGER_TRANSPORT_DSN=doctrine://default
+      - MAILER_DSN=smtp://mailtrap:1025
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - internal
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-helpdesk}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-helpdesk}
+      POSTGRES_DB: ${POSTGRES_DB:-helpdesk}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-helpdesk}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    ports:
+      - "5432:5432"
+    networks:
+      - internal
+
+  mailtrap:
+    image: axllent/mailpit
+    ports:
+      - "8025:8025"
+      - "1025:1025"
+    networks:
+      - internal
+
+  pgadmin:
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-admin@example.com}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-admin}
+    ports:
+      - "5050:80"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - internal
+
+volumes:
+  postgres_data:
+
+networks:
+  internal:
+    driver: bridge
