@@ -27,3 +27,5 @@ frontend/dist/
 
 # Docker
 pgadmin_data/
+
+/node_modules
