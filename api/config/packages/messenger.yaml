@@ -11,8 +11,12 @@ framework:
                     multiplier: 2
             failed: 'doctrine://default?queue_name=failed'
 
-        routing: {}
-            # 'App\Ticket\Infrastructure\Messenger\Message\TicketCreatedMessage': async
+        routing:
+            'App\Ticket\Infrastructure\Messenger\Message\TicketCreatedMessage': async
+            'App\Ticket\Infrastructure\Messenger\Message\TicketAssignedMessage': async
+            'App\Ticket\Infrastructure\Messenger\Message\TicketStatusChangedMessage': async
+            'App\Ticket\Infrastructure\Messenger\Message\CommentAddedMessage': async
+            'App\Ticket\Infrastructure\Messenger\Message\SlaViolatedMessage': async
 
 when@test:
     framework:

@@ -1,4 +1,4 @@
-.PHONY: up down build sh fe migrate diff test lint cs-fix logs
+.PHONY: up down build sh fe migrate diff test test-db lint cs-fix logs
 
 up:
 	docker compose up -d
@@ -21,7 +21,11 @@ migrate:
 diff:
 	docker compose exec php php bin/console doctrine:migrations:diff
 
-test:
+test-db:
+	docker compose exec php php bin/console doctrine:database:create --env=test --if-not-exists
+	docker compose exec php php bin/console doctrine:migrations:migrate --env=test --no-interaction
+
+test: test-db
 	docker compose exec php php bin/phpunit
 
 lint:
