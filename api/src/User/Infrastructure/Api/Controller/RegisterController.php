@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\User\Infrastructure\Api\Controller;
 
-use App\User\Application\Command\RegisterUser\RegisterUserCommand;
+use App\User\Application\Command\CreateUser;
 use App\User\Domain\Exception\UserAlreadyExistsException;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -30,9 +30,9 @@ final class RegisterController
         $data = json_decode($request->getContent(), true) ?? [];
 
         try {
-            $envelope = $this->messageBus->dispatch(new RegisterUserCommand(
+            $envelope = $this->messageBus->dispatch(new CreateUser(
                 email: $data['email'] ?? '',
-                password: $data['password'] ?? '',
+                plainPassword: $data['password'] ?? '',
                 fullName: $data['fullName'] ?? '',
             ));
 

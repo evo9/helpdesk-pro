@@ -5,11 +5,12 @@ declare(strict_types=1);
 namespace App\User\Application\Command;
 
 use App\User\Domain\Entity\User;
-use App\User\Domain\Enum\UserRole;
+use App\User\Domain\Exception\UserAlreadyExistsException;
 use App\User\Domain\Repository\UserRepositoryInterface;
-use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
+#[AsMessageHandler]
 final class CreateUserHandler
 {
     public function __construct(
@@ -21,11 +22,12 @@ final class CreateUserHandler
     public function __invoke(CreateUser $command): User
     {
         if (null !== $this->userRepo->findByEmail($command->email)) {
-            throw new UnprocessableEntityHttpException('A user with this email already exists.');
+            throw new UserAlreadyExistsException(
+                \sprintf('User with email %s already exists.', $command->email),
+            );
         }
 
-        $role = UserRole::fromSecurityRole($command->role);
-        $user = new User($command->email, '', $command->fullName, $role);
+        $user = new User($command->email, '', $command->fullName, $command->role);
         $user->updatePassword($this->passwordHasher->hashPassword($user, $command->plainPassword));
 
         $this->userRepo->save($user);
