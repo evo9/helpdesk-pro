@@ -22,9 +22,7 @@ final class CreateUserHandler
     public function __invoke(CreateUser $command): User
     {
         if (null !== $this->userRepo->findByEmail($command->email)) {
-            throw new UserAlreadyExistsException(
-                \sprintf('User with email %s already exists.', $command->email),
-            );
+            throw new UserAlreadyExistsException(\sprintf('User with email %s already exists.', $command->email));
         }
 
         $user = new User($command->email, '', $command->fullName, $command->role);
