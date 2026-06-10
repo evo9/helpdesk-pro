@@ -23,9 +23,7 @@ final class RegisterUserCommandHandler
     public function __invoke(RegisterUserCommand $command): User
     {
         if (null !== $this->userRepository->findByEmail($command->email)) {
-            throw new UserAlreadyExistsException(
-                sprintf('User with email %s already exists.', $command->email),
-            );
+            throw new UserAlreadyExistsException(\sprintf('User with email %s already exists.', $command->email));
         }
 
         $user = new User($command->email, '', $command->fullName, UserRole::REPORTER);

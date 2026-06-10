@@ -48,15 +48,15 @@ final class CreateUserCommand extends Command
         /** @var string $fullName */
         $fullName = $input->getOption('full-name');
 
-        if ($this->userRepository->findByEmail($email) !== null) {
-            $io->error(sprintf('User with email %s already exists.', $email));
+        if (null !== $this->userRepository->findByEmail($email)) {
+            $io->error(\sprintf('User with email %s already exists.', $email));
 
             return Command::FAILURE;
         }
 
         $role = UserRole::tryFrom($roleName);
-        if ($role === null) {
-            $io->error(sprintf('Invalid role "%s". Valid values: reporter, agent, manager.', $roleName));
+        if (null === $role) {
+            $io->error(\sprintf('Invalid role "%s". Valid values: reporter, agent, manager.', $roleName));
 
             return Command::FAILURE;
         }
@@ -67,7 +67,7 @@ final class CreateUserCommand extends Command
 
         $this->userRepository->save($user);
 
-        $io->success(sprintf('User created: %s (%s)', $email, $role->value));
+        $io->success(\sprintf('User created: %s (%s)', $email, $role->value));
 
         return Command::SUCCESS;
     }

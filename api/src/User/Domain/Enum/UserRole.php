@@ -25,7 +25,7 @@ enum UserRole: string
             'ROLE_REPORTER' => self::REPORTER,
             'ROLE_AGENT' => self::AGENT,
             'ROLE_MANAGER' => self::MANAGER,
-            default => throw new \ValueError(sprintf('"%s" is not a valid security role.', $role)),
+            default => throw new \ValueError(\sprintf('"%s" is not a valid security role.', $role)),
         };
     }
 }
