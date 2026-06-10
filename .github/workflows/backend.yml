@@ -53,6 +53,7 @@ jobs:
           JWT_PUBLIC_KEY: ${{ github.workspace }}/api/config/jwt/public.pem
           JWT_PASSPHRASE: ''
           MESSENGER_TRANSPORT_DSN: in-memory://
+          DEFAULT_URI: http://localhost
         run: php bin/console cache:warmup
 
       - name: PHPStan
@@ -64,6 +65,7 @@ jobs:
           JWT_PUBLIC_KEY: ${{ github.workspace }}/api/config/jwt/public.pem
           JWT_PASSPHRASE: ''
           MESSENGER_TRANSPORT_DSN: in-memory://
+          DEFAULT_URI: http://localhost
         run: vendor/bin/phpstan analyse --memory-limit=512M
 
       - name: PHP-CS-Fixer (dry-run)
@@ -79,7 +81,7 @@ jobs:
         env:
           POSTGRES_USER: test
           POSTGRES_PASSWORD: test
-          POSTGRES_DB: helpdesk_test
+          POSTGRES_DB: helpdesk
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
@@ -121,20 +123,24 @@ jobs:
         env:
           APP_ENV: test
           APP_SECRET: ci-dummy-secret
-          DATABASE_URL: postgresql://test:test@127.0.0.1:5432/helpdesk_test?serverVersion=16&charset=utf8
+          DATABASE_URL: postgresql://test:test@127.0.0.1:5432/helpdesk?serverVersion=16&charset=utf8
           JWT_SECRET_KEY: ${{ github.workspace }}/api/config/jwt/private.pem
           JWT_PUBLIC_KEY: ${{ github.workspace }}/api/config/jwt/public.pem
           JWT_PASSPHRASE: ''
           MESSENGER_TRANSPORT_DSN: in-memory://
-        run: php bin/console doctrine:migrations:migrate --env=test --no-interaction
+          DEFAULT_URI: http://localhost
+        run: |
+          php bin/console doctrine:database:create --env=test --if-not-exists
+          php bin/console doctrine:migrations:migrate --env=test --no-interaction
 
       - name: Run tests
         env:
           APP_ENV: test
           APP_SECRET: ci-dummy-secret
-          DATABASE_URL: postgresql://test:test@127.0.0.1:5432/helpdesk_test?serverVersion=16&charset=utf8
+          DATABASE_URL: postgresql://test:test@127.0.0.1:5432/helpdesk?serverVersion=16&charset=utf8
           JWT_SECRET_KEY: ${{ github.workspace }}/api/config/jwt/private.pem
           JWT_PUBLIC_KEY: ${{ github.workspace }}/api/config/jwt/public.pem
           JWT_PASSPHRASE: ''
           MESSENGER_TRANSPORT_DSN: in-memory://
+          DEFAULT_URI: http://localhost
         run: php bin/phpunit
