@@ -99,7 +99,7 @@ final class UsersApiTest extends WebTestCase
         $data = $this->json();
         $this->assertEquals((string) $this->reporter->getId(), $data['id']);
         $this->assertEquals('reporter@users.helpdesk', $data['email']);
-        $this->assertEquals('reporter', $data['role']);
+        $this->assertEquals('ROLE_REPORTER', $data['role']);
         $this->assertTrue($data['isActive']);
     }
 
@@ -129,13 +129,13 @@ final class UsersApiTest extends WebTestCase
             'email' => 'newagent@users.helpdesk',
             'password' => 'SecurePass1!',
             'fullName' => 'New Agent',
-            'role' => 'agent',
+            'role' => 'ROLE_AGENT',
         ]);
 
         $this->assertResponseStatusCodeSame(201);
         $data = $this->json();
         $this->assertEquals('newagent@users.helpdesk', $data['email']);
-        $this->assertEquals('agent', $data['role']);
+        $this->assertEquals('ROLE_AGENT', $data['role']);
         $this->assertTrue($data['isActive']);
         $this->assertNotNull($data['id']);
     }
@@ -146,7 +146,7 @@ final class UsersApiTest extends WebTestCase
             'email' => 'reporter@users.helpdesk',
             'password' => 'SecurePass1!',
             'fullName' => 'Duplicate',
-            'role' => 'reporter',
+            'role' => 'ROLE_REPORTER',
         ]);
 
         $this->assertResponseStatusCodeSame(422);
@@ -158,7 +158,7 @@ final class UsersApiTest extends WebTestCase
             'email' => 'new@users.helpdesk',
             'password' => 'SecurePass1!',
             'fullName' => 'New',
-            'role' => 'reporter',
+            'role' => 'ROLE_REPORTER',
         ]);
         $this->assertResponseStatusCodeSame(403);
     }
@@ -169,7 +169,7 @@ final class UsersApiTest extends WebTestCase
             'email' => 'new2@users.helpdesk',
             'password' => 'SecurePass1!',
             'fullName' => 'New2',
-            'role' => 'reporter',
+            'role' => 'ROLE_REPORTER',
         ]);
         $this->assertResponseStatusCodeSame(403);
     }
@@ -178,9 +178,9 @@ final class UsersApiTest extends WebTestCase
 
     public function testManagerCanChangeUserRole(): void
     {
-        $this->patch('/api/users/'.$this->reporter->getId(), $this->managerToken, ['role' => 'agent']);
+        $this->patch('/api/users/'.$this->reporter->getId(), $this->managerToken, ['role' => 'ROLE_AGENT']);
         $this->assertResponseIsSuccessful();
-        $this->assertEquals('agent', $this->json()['role']);
+        $this->assertEquals('ROLE_AGENT', $this->json()['role']);
     }
 
     public function testManagerCanDeactivateUser(): void
@@ -203,7 +203,7 @@ final class UsersApiTest extends WebTestCase
 
     public function testReporterCannotUpdateUser(): void
     {
-        $this->patch('/api/users/'.$this->agent->getId(), $this->reporterToken, ['role' => 'manager']);
+        $this->patch('/api/users/'.$this->agent->getId(), $this->reporterToken, ['role' => 'ROLE_MANAGER']);
         $this->assertResponseStatusCodeSame(403);
     }
 

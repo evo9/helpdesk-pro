@@ -35,7 +35,7 @@ final class CreateUserProcessor implements ProcessorInterface
             email: $data->email ?? '',
             plainPassword: $data->password ?? '',
             fullName: $data->fullName ?? '',
-            role: $data->role ?? 'reporter',
+            role: $data->role ?? 'ROLE_REPORTER',
         ));
 
         return $this->provider->toResource($user);
