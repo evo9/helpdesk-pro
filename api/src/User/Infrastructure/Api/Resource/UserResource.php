@@ -23,6 +23,12 @@ use Symfony\Component\Serializer\Attribute\Groups;
             normalizationContext: ['groups' => ['user:read']],
         ),
         new Get(
+            uriTemplate: '/users/me',
+            uriVariables: [],
+            provider: UserStateProvider::class,
+            normalizationContext: ['groups' => ['user:read']],
+        ),
+        new Get(
             provider: UserStateProvider::class,
             normalizationContext: ['groups' => ['user:read']],
         ),

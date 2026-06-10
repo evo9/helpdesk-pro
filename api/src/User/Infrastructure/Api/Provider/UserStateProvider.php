@@ -38,6 +38,17 @@ final class UserStateProvider implements ProviderInterface
             );
         }
 
+        // /users/me — return the currently authenticated user
+        if (empty($uriVariables)) {
+            /** @var User $authUser */
+            $authUser = $this->security->getUser();
+            if (!$authUser instanceof User) {
+                throw new AccessDeniedException();
+            }
+
+            return $this->toResource($authUser);
+        }
+
         $user = $this->userRepo->findById(Uuid::fromString((string) ($uriVariables['id'] ?? '')));
         if (null === $user) {
             throw new NotFoundHttpException('User not found.');
