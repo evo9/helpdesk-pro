@@ -1,4 +1,4 @@
-.PHONY: up down build sh fe migrate diff test test-db lint cs-fix logs
+.PHONY: up down build sh fe migrate diff test test-db lint cs-fix logs fixtures
 
 up:
 	docker compose up -d
@@ -34,6 +34,9 @@ lint:
 
 cs-fix:
 	docker compose exec php vendor/bin/php-cs-fixer fix
+
+fixtures:
+	docker compose exec php php bin/console doctrine:fixtures:load --no-interaction
 
 logs:
 	docker compose logs -f php messenger scheduler frontend

@@ -4,25 +4,23 @@ declare(strict_types=1);
 
 namespace App\User\Infrastructure\Api\Controller;
 
-use App\User\Domain\Entity\User;
-use App\User\Domain\Enum\UserRole;
-use App\User\Infrastructure\Doctrine\Repository\UserRepository;
+use App\User\Application\Command\RegisterUser\RegisterUserCommand;
+use App\User\Domain\Exception\UserAlreadyExistsException;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use Symfony\Component\Messenger\Exception\HandlerFailedException;
+use Symfony\Component\Messenger\Exception\ValidationFailedException;
+use Symfony\Component\Messenger\MessageBusInterface;
+use Symfony\Component\Messenger\Stamp\HandledStamp;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\Validator\Constraints as Assert;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 final class RegisterController
 {
     public function __construct(
-        private readonly UserRepository $userRepository,
-        private readonly UserPasswordHasherInterface $passwordHasher,
+        private readonly MessageBusInterface $messageBus,
         private readonly JWTTokenManagerInterface $jwtManager,
-        private readonly ValidatorInterface $validator,
     ) {
     }
 
@@ -31,37 +29,33 @@ final class RegisterController
     {
         $data = json_decode($request->getContent(), true) ?? [];
 
-        $violations = $this->validator->validate($data, new Assert\Collection([
-            'email' => [new Assert\NotBlank(), new Assert\Email()],
-            'password' => [new Assert\NotBlank(), new Assert\Length(min: 8)],
-            'fullName' => [new Assert\NotBlank(), new Assert\Length(min: 2)],
-        ]));
+        try {
+            $envelope = $this->messageBus->dispatch(new RegisterUserCommand(
+                email: $data['email'] ?? '',
+                password: $data['password'] ?? '',
+                fullName: $data['fullName'] ?? '',
+            ));
 
-        if (\count($violations) > 0) {
+            $stamp = $envelope->last(HandledStamp::class);
+            \assert($stamp instanceof HandledStamp);
+            $user = $stamp->getResult();
+        } catch (ValidationFailedException $e) {
             $errors = [];
-            foreach ($violations as $v) {
-                $errors[] = $v->getPropertyPath().': '.$v->getMessage();
+            foreach ($e->getViolations() as $violation) {
+                $errors[] = $violation->getPropertyPath().': '.$violation->getMessage();
             }
 
             return new JsonResponse(['errors' => $errors], Response::HTTP_UNPROCESSABLE_ENTITY);
+        } catch (HandlerFailedException $e) {
+            $cause = $e->getPrevious();
+            if ($cause instanceof UserAlreadyExistsException) {
+                return new JsonResponse(
+                    ['errors' => ['email: This email is already registered.']],
+                    Response::HTTP_UNPROCESSABLE_ENTITY,
+                );
+            }
+            throw $e;
         }
-
-        if (null !== $this->userRepository->findByEmail($data['email'])) {
-            return new JsonResponse(
-                ['errors' => ['email: This email is already registered.']],
-                Response::HTTP_UNPROCESSABLE_ENTITY,
-            );
-        }
-
-        $user = new User(
-            email: $data['email'],
-            passwordHash: '',
-            fullName: $data['fullName'],
-            role: UserRole::REPORTER,
-        );
-        $user->updatePassword($this->passwordHasher->hashPassword($user, $data['password']));
-
-        $this->userRepository->save($user);
 
         return new JsonResponse(['token' => $this->jwtManager->create($user)], Response::HTTP_CREATED);
     }

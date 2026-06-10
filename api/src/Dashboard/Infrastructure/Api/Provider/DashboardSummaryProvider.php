@@ -6,8 +6,8 @@ namespace App\Dashboard\Infrastructure\Api\Provider;
 
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
+use App\Dashboard\Application\Query\GetDashboardSummaryHandler;
 use App\Dashboard\Infrastructure\Api\Resource\DashboardSummaryResource;
-use App\Dashboard\Infrastructure\Doctrine\Query\GetDashboardSummaryHandler;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 

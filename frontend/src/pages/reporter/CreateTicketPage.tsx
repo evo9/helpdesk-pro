@@ -31,7 +31,7 @@ export default function CreateTicketPage() {
     queryKey: ['categories'],
     queryFn: getCategories,
   })
-  const categories = categoriesData?.['hydra:member'] ?? []
+  const categories = categoriesData ?? []
 
   const mutation = useMutation({
     mutationFn: createTicket,

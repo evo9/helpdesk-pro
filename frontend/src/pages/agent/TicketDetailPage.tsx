@@ -117,13 +117,13 @@ export default function TicketDetailPage() {
       ticket.assignee === `/api/users/${currentUser.id}`)
 
   const agents =
-    usersData?.['hydra:member']?.filter((u) => u.role !== 'ROLE_REPORTER') ?? []
+    (usersData ?? []).filter((u) => u.role !== 'ROLE_REPORTER')
 
   const currentAssigneeUuid = ticket.assignee?.split('/').pop() ?? ''
   const effectiveAssigneeId = selectedUserId || currentAssigneeUuid
 
-  const comments = commentsData?.['hydra:member'] ?? []
-  const auditLogs = auditData?.['hydra:member'] ?? []
+  const comments = commentsData ?? []
+  const auditLogs = auditData ?? []
 
   return (
     <div className="space-y-6">

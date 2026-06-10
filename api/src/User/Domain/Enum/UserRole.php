@@ -18,4 +18,14 @@ enum UserRole: string
             self::MANAGER => 'ROLE_MANAGER',
         };
     }
+
+    public static function fromSecurityRole(string $role): self
+    {
+        return match ($role) {
+            'ROLE_REPORTER' => self::REPORTER,
+            'ROLE_AGENT' => self::AGENT,
+            'ROLE_MANAGER' => self::MANAGER,
+            default => throw new \ValueError(\sprintf('"%s" is not a valid security role.', $role)),
+        };
+    }
 }

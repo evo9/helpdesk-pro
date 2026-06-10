@@ -1,28 +1,25 @@
 import { apiClient } from './client'
-import type { SlaPolicy } from './types'
+import type { SlaPolicy, PaginatedResponse } from './types'
 
 export async function getSlaPolicies(): Promise<SlaPolicy[]> {
-  const { data } = await apiClient.get<SlaPolicy[]>('/sla-policies')
-  return data
+  const { data } = await apiClient.get<PaginatedResponse<SlaPolicy>>('/sla-policies')
+  return data.member
 }
 
 export async function createSlaPolicy(payload: {
-  name: string
-  responseTime: number
-  resolutionTime: number
+  category: string
+  priority: string
+  responseHours: number
+  resolutionHours: number
 }): Promise<SlaPolicy> {
   const { data } = await apiClient.post<SlaPolicy>('/sla-policies', payload)
   return data
 }
 
 export async function updateSlaPolicy(
-  id: number,
-  payload: Partial<{ name: string; responseTime: number; resolutionTime: number }>
+  id: string,
+  payload: Partial<{ responseHours: number; resolutionHours: number }>
 ): Promise<SlaPolicy> {
   const { data } = await apiClient.patch<SlaPolicy>(`/sla-policies/${id}`, payload)
   return data
-}
-
-export async function deleteSlaPolicy(id: number): Promise<void> {
-  await apiClient.delete(`/sla-policies/${id}`)
 }

@@ -1,19 +1,34 @@
+import { lazy, Suspense } from 'react'
 import { createBrowserRouter, Navigate, Outlet } from 'react-router-dom'
 import { jwtDecode } from 'jwt-decode'
 import { useAuth } from '@/contexts/AuthContext'
 import AppLayout from '@/layouts/AppLayout'
-import LoginPage from '@/pages/LoginPage'
-import RegisterPage from '@/pages/RegisterPage'
-import DashboardPage from '@/pages/DashboardPage'
-import SettingsPage from '@/pages/SettingsPage'
-import NotFoundPage from '@/pages/NotFoundPage'
-import MyTicketsPage from '@/pages/reporter/MyTicketsPage'
-import CreateTicketPage from '@/pages/reporter/CreateTicketPage'
-import TicketDetailPage from '@/pages/reporter/TicketDetailPage'
-import AgentQueuePage from '@/pages/agent/QueuePage'
-import MyAssignedPage from '@/pages/agent/MyAssignedPage'
-import AgentTicketDetailPage from '@/pages/agent/TicketDetailPage'
-import AllTicketsPage from '@/pages/manager/AllTicketsPage'
+import PageLoader from '@/components/PageLoader'
+
+// Public
+const LoginPage    = lazy(() => import('@/pages/LoginPage'))
+const RegisterPage = lazy(() => import('@/pages/RegisterPage'))
+
+// Reporter
+const MyTicketsPage    = lazy(() => import('@/pages/reporter/MyTicketsPage'))
+const CreateTicketPage = lazy(() => import('@/pages/reporter/CreateTicketPage'))
+const TicketDetailPage = lazy(() => import('@/pages/reporter/TicketDetailPage'))
+
+// Agent
+const AgentQueuePage      = lazy(() => import('@/pages/agent/QueuePage'))
+const MyAssignedPage      = lazy(() => import('@/pages/agent/MyAssignedPage'))
+const AgentTicketDetailPage = lazy(() => import('@/pages/agent/TicketDetailPage'))
+
+// Manager
+const AllTicketsPage      = lazy(() => import('@/pages/manager/AllTicketsPage'))
+const ManagerDashboardPage = lazy(() => import('@/pages/manager/DashboardPage'))
+const UsersPage           = lazy(() => import('@/pages/manager/UsersPage'))
+const CategoriesPage      = lazy(() => import('@/pages/manager/CategoriesPage'))
+const SlaPoliciesPage     = lazy(() => import('@/pages/manager/SlaPoliciesPage'))
+const SettingsPage        = lazy(() => import('@/pages/SettingsPage'))
+
+// Shared
+const NotFoundPage = lazy(() => import('@/pages/NotFoundPage'))
 
 interface JwtPayload {
   roles: string[]
@@ -62,23 +77,27 @@ function RoleBasedHome() {
 export const router = createBrowserRouter([
   {
     path: '/login',
-    element: <LoginPage />,
+    element: <Suspense fallback={<PageLoader />}><LoginPage /></Suspense>,
   },
   {
     path: '/register',
-    element: <RegisterPage />,
+    element: <Suspense fallback={<PageLoader />}><RegisterPage /></Suspense>,
   },
   {
     element: <RequireAuth />,
     children: [
       {
-        element: <AppLayout />,
+        element: (
+          <Suspense fallback={<PageLoader />}>
+            <AppLayout />
+          </Suspense>
+        ),
         children: [
           { index: true, element: <RoleBasedHome /> },
           {
             element: <RequireReporter />,
             children: [
-              { path: 'my-tickets', element: <MyTicketsPage /> },
+              { path: 'my-tickets',     element: <MyTicketsPage /> },
               { path: 'my-tickets/new', element: <CreateTicketPage /> },
               { path: 'my-tickets/:id', element: <TicketDetailPage /> },
             ],
@@ -94,9 +113,12 @@ export const router = createBrowserRouter([
           {
             element: <RequireManager />,
             children: [
-              { path: 'all-tickets', element: <AllTicketsPage /> },
-              { path: 'dashboard',   element: <DashboardPage /> },
-              { path: 'settings/*',  element: <SettingsPage /> },
+              { path: 'all-tickets',  element: <AllTicketsPage /> },
+              { path: 'dashboard',    element: <ManagerDashboardPage /> },
+              { path: 'users',        element: <UsersPage /> },
+              { path: 'categories',   element: <CategoriesPage /> },
+              { path: 'sla-policies', element: <SlaPoliciesPage /> },
+              { path: 'settings/*',   element: <SettingsPage /> },
             ],
           },
           { path: '*', element: <NotFoundPage /> },
