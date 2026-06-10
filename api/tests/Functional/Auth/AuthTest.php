@@ -39,7 +39,7 @@ final class AuthTest extends WebTestCase
             json_encode([
                 'email' => 'alice@test.helpdesk',
                 'password' => 'Password123!',
-                'full_name' => 'Alice Smith',
+                'fullName' => 'Alice Smith',
             ]),
         );
 
@@ -54,7 +54,7 @@ final class AuthTest extends WebTestCase
         $payload = json_encode([
             'email' => 'duplicate@test.helpdesk',
             'password' => 'Password123!',
-            'full_name' => 'Dup User',
+            'fullName' => 'Dup User',
         ]);
 
         $this->client->request('POST', '/api/auth/register', [], [], ['CONTENT_TYPE' => 'application/json'], $payload);
@@ -153,7 +153,7 @@ final class AuthTest extends WebTestCase
             [],
             [],
             ['CONTENT_TYPE' => 'application/json'],
-            json_encode(['email' => $email, 'password' => $password, 'full_name' => $fullName]),
+            json_encode(['email' => $email, 'password' => $password, 'fullName' => $fullName]),
         );
     }
 

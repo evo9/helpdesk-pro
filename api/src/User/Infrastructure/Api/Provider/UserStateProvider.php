@@ -40,7 +40,6 @@ final class UserStateProvider implements ProviderInterface
 
         // /users/me — return the currently authenticated user
         if (empty($uriVariables)) {
-            /** @var User $authUser */
             $authUser = $this->security->getUser();
             if (!$authUser instanceof User) {
                 throw new AccessDeniedException();
