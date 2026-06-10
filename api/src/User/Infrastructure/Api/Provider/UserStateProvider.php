@@ -67,7 +67,7 @@ final class UserStateProvider implements ProviderInterface
         $resource->id = (string) $user->getId();
         $resource->email = $user->getEmail();
         $resource->fullName = $user->getFullName();
-        $resource->role = $user->getRole()->value;
+        $resource->role = $user->getRole()->toSecurityRole();
         $resource->isActive = $user->isActive();
         $resource->createdAt = $user->getCreatedAt();
 

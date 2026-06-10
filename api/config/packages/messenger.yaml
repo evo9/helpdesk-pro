@@ -1,5 +1,10 @@
 framework:
     messenger:
+        buses:
+            messenger.bus.default:
+                middleware:
+                    - validation
+
         failure_transport: failed
 
         transports:

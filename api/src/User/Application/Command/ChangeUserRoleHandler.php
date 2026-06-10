@@ -21,7 +21,7 @@ final class ChangeUserRoleHandler
         $user = $this->userRepo->findById(Uuid::fromString($command->userId))
             ?? throw new NotFoundHttpException('User not found.');
 
-        $user->changeRole(UserRole::from($command->role));
+        $user->changeRole(UserRole::fromSecurityRole($command->role));
         $this->userRepo->save($user);
     }
 }

@@ -28,6 +28,9 @@ export default function AppLayout() {
           {hasRole('ROLE_MANAGER') && (
             <>
               <SidebarLink to="/dashboard">Dashboard</SidebarLink>
+              <SidebarLink to="/users">Users</SidebarLink>
+              <SidebarLink to="/categories">Categories</SidebarLink>
+              <SidebarLink to="/sla-policies">SLA Policies</SidebarLink>
               <SidebarLink to="/settings">Settings</SidebarLink>
             </>
           )}

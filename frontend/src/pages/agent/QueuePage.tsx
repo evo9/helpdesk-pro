@@ -35,7 +35,7 @@ export default function QueuePage() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['tickets'] }),
   })
 
-  const allTickets: Ticket[] = data?.['hydra:member'] ?? []
+  const allTickets: Ticket[] = data ?? []
   const unassigned = allTickets.filter((t) => t.assignee === null)
   const tickets =
     statusFilter === 'all'

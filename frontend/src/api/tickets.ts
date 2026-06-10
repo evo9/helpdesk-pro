@@ -1,9 +1,9 @@
 import { apiClient } from './client'
 import type { Ticket, Comment, AuditLog, PaginatedResponse, TicketFilters } from './types'
 
-export async function getTickets(filters?: TicketFilters): Promise<PaginatedResponse<Ticket>> {
+export async function getTickets(filters?: TicketFilters): Promise<Ticket[]> {
   const { data } = await apiClient.get<PaginatedResponse<Ticket>>('/tickets', { params: filters })
-  return data
+  return data.member
 }
 
 export async function getTicket(id: string): Promise<Ticket> {
@@ -33,11 +33,11 @@ export async function deleteTicket(id: string): Promise<void> {
   await apiClient.delete(`/tickets/${id}`)
 }
 
-export async function getComments(ticketId: string): Promise<PaginatedResponse<Comment>> {
+export async function getComments(ticketId: string): Promise<Comment[]> {
   const { data } = await apiClient.get<PaginatedResponse<Comment>>(
     `/tickets/${ticketId}/comments`
   )
-  return data
+  return data.member
 }
 
 export async function createComment(
@@ -48,7 +48,7 @@ export async function createComment(
   return data
 }
 
-export async function getAuditLog(ticketId: string): Promise<PaginatedResponse<AuditLog>> {
+export async function getAuditLog(ticketId: string): Promise<AuditLog[]> {
   const { data } = await apiClient.get<PaginatedResponse<AuditLog>>(`/tickets/${ticketId}/audit`)
-  return data
+  return data.member
 }

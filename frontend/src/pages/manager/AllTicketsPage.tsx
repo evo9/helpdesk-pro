@@ -53,11 +53,11 @@ export default function AllTicketsPage() {
     queryFn: () => getUsers(),
   })
 
-  const agents: User[] = (usersData?.['hydra:member'] ?? []).filter(
+  const agents: User[] = (usersData ?? []).filter(
     (u: User) => u.role !== 'ROLE_REPORTER'
   )
 
-  const allTickets: Ticket[] = ticketsData?.['hydra:member'] ?? []
+  const allTickets: Ticket[] = ticketsData ?? []
 
   const filtered = allTickets.filter((t) => {
     if (statusFilter !== 'all' && t.status !== statusFilter) return false

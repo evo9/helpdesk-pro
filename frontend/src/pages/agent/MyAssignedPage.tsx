@@ -46,7 +46,7 @@ export default function MyAssignedPage() {
 
   const myIri = currentUser ? `/api/users/${currentUser.id}` : null
 
-  const allTickets: Ticket[] = data?.['hydra:member'] ?? []
+  const allTickets: Ticket[] = data ?? []
   const tickets = allTickets.filter((t) => {
     if (t.assignee !== myIri) return false
     if (statusFilter !== 'all' && t.status !== statusFilter) return false

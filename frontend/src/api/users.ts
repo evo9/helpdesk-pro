@@ -1,9 +1,9 @@
 import { apiClient } from './client'
 import type { User, PaginatedResponse } from './types'
 
-export async function getUsers(): Promise<PaginatedResponse<User>> {
+export async function getUsers(): Promise<User[]> {
   const { data } = await apiClient.get<PaginatedResponse<User>>('/users')
-  return data
+  return data.member
 }
 
 export async function createUser(payload: {
@@ -18,7 +18,7 @@ export async function createUser(payload: {
 
 export async function updateUser(
   id: string,
-  payload: Partial<{ fullName: string; email: string; role: string }>
+  payload: Partial<{ fullName: string; email: string; role: string; isActive: boolean }>
 ): Promise<User> {
   const { data } = await apiClient.patch<User>(`/users/${id}`, payload)
   return data

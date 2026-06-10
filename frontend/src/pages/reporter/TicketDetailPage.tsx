@@ -32,7 +32,7 @@ export default function TicketDetailPage() {
     queryFn: () => getComments(id!),
     enabled: !!id,
   })
-  const publicComments = (commentsData?.['hydra:member'] ?? []).filter(
+  const publicComments = (commentsData ?? []).filter(
     (c) => !c.isInternal
   )
 

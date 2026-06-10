@@ -1,0 +1,132 @@
+name: Backend CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+defaults:
+  run:
+    working-directory: api
+
+jobs:
+  lint:
+    name: Lint (PHPStan + CS-Fixer)
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up PHP 8.4
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: pdo, pdo_pgsql, intl
+          coverage: none
+
+      - name: Cache Composer packages
+        uses: actions/cache@v4
+        with:
+          path: api/vendor
+          key: ${{ runner.os }}-composer-${{ hashFiles('api/composer.lock') }}
+          restore-keys: ${{ runner.os }}-composer-
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress --no-interaction
+
+      - name: Generate JWT keys
+        run: |
+          openssl genrsa -out config/jwt/private.pem 2048
+          openssl rsa -in config/jwt/private.pem -pubout -out config/jwt/public.pem
+
+      - name: Warm up Symfony dev cache
+        env:
+          APP_ENV: dev
+          APP_SECRET: ci-dummy-secret
+          DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/helpdesk?serverVersion=16&charset=utf8
+          JWT_SECRET_KEY: ${{ github.workspace }}/api/config/jwt/private.pem
+          JWT_PUBLIC_KEY: ${{ github.workspace }}/api/config/jwt/public.pem
+          JWT_PASSPHRASE: ''
+          MESSENGER_TRANSPORT_DSN: in-memory://
+        run: php bin/console cache:warmup
+
+      - name: PHPStan
+        env:
+          APP_ENV: dev
+          APP_SECRET: ci-dummy-secret
+          DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/helpdesk?serverVersion=16&charset=utf8
+          JWT_SECRET_KEY: ${{ github.workspace }}/api/config/jwt/private.pem
+          JWT_PUBLIC_KEY: ${{ github.workspace }}/api/config/jwt/public.pem
+          JWT_PASSPHRASE: ''
+          MESSENGER_TRANSPORT_DSN: in-memory://
+        run: vendor/bin/phpstan analyse --memory-limit=512M
+
+      - name: PHP-CS-Fixer (dry-run)
+        run: vendor/bin/php-cs-fixer fix --dry-run --diff
+
+  test:
+    name: Tests (PHPUnit)
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: helpdesk_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up PHP 8.4
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: pdo, pdo_pgsql, intl
+          coverage: none
+
+      - name: Cache Composer packages
+        uses: actions/cache@v4
+        with:
+          path: api/vendor
+          key: ${{ runner.os }}-composer-${{ hashFiles('api/composer.lock') }}
+          restore-keys: ${{ runner.os }}-composer-
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress --no-interaction
+
+      - name: Generate JWT keys
+        run: |
+          openssl genrsa -out config/jwt/private.pem 2048
+          openssl rsa -in config/jwt/private.pem -pubout -out config/jwt/public.pem
+
+      - name: Run migrations
+        env:
+          APP_ENV: test
+          APP_SECRET: ci-dummy-secret
+          DATABASE_URL: postgresql://test:test@127.0.0.1:5432/helpdesk_test?serverVersion=16&charset=utf8
+          JWT_SECRET_KEY: ${{ github.workspace }}/api/config/jwt/private.pem
+          JWT_PUBLIC_KEY: ${{ github.workspace }}/api/config/jwt/public.pem
+          JWT_PASSPHRASE: ''
+          MESSENGER_TRANSPORT_DSN: in-memory://
+        run: php bin/console doctrine:migrations:migrate --env=test --no-interaction
+
+      - name: Run tests
+        env:
+          APP_ENV: test
+          APP_SECRET: ci-dummy-secret
+          DATABASE_URL: postgresql://test:test@127.0.0.1:5432/helpdesk_test?serverVersion=16&charset=utf8
+          JWT_SECRET_KEY: ${{ github.workspace }}/api/config/jwt/private.pem
+          JWT_PUBLIC_KEY: ${{ github.workspace }}/api/config/jwt/public.pem
+          JWT_PASSPHRASE: ''
+          MESSENGER_TRANSPORT_DSN: in-memory://
+        run: php bin/phpunit

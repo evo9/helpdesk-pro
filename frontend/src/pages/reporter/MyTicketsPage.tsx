@@ -28,7 +28,7 @@ export default function MyTicketsPage() {
       getTickets(statusFilter === 'all' ? undefined : { status: statusFilter }),
   })
 
-  const tickets = data?.['hydra:member'] ?? []
+  const tickets = data ?? []
 
   return (
     <div className="space-y-4">

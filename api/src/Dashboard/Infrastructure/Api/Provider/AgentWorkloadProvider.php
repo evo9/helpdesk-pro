@@ -7,8 +7,8 @@ namespace App\Dashboard\Infrastructure\Api\Provider;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
 use App\Dashboard\Application\Query\AgentWorkloadItem;
+use App\Dashboard\Application\Query\GetAgentWorkloadHandler;
 use App\Dashboard\Infrastructure\Api\Resource\AgentWorkloadResource;
-use App\Dashboard\Infrastructure\Doctrine\Query\GetAgentWorkloadHandler;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 

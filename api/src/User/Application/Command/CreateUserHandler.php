@@ -24,7 +24,7 @@ final class CreateUserHandler
             throw new UnprocessableEntityHttpException('A user with this email already exists.');
         }
 
-        $role = UserRole::from($command->role);
+        $role = UserRole::fromSecurityRole($command->role);
         $user = new User($command->email, '', $command->fullName, $role);
         $user->updatePassword($this->passwordHasher->hashPassword($user, $command->plainPassword));
 

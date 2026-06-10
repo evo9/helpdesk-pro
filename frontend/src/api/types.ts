@@ -81,9 +81,14 @@ export interface DashboardAgent {
   resolvedLast30d: number
 }
 
+export interface TicketsByCategoryItem {
+  categoryName: string
+  count: number
+}
+
 export interface PaginatedResponse<T> {
-  'hydra:member': T[]
-  'hydra:totalItems': number
+  member: T[]
+  totalItems: number
 }
 
 export interface TicketFilters {
