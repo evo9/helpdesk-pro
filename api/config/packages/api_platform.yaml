@@ -17,6 +17,9 @@ api_platform:
             mime_types: ['application/vnd.openapi+json']
         html:
             mime_types: ['text/html']
+    enable_swagger_ui: true
+    enable_re_doc: false
+    enable_scalar: false
     defaults:
         stateless: true
         cache_headers:
