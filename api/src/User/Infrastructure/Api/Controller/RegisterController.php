@@ -34,7 +34,7 @@ final class RegisterController
         $violations = $this->validator->validate($data, new Assert\Collection([
             'email' => [new Assert\NotBlank(), new Assert\Email()],
             'password' => [new Assert\NotBlank(), new Assert\Length(min: 8)],
-            'full_name' => [new Assert\NotBlank(), new Assert\Length(min: 2)],
+            'fullName' => [new Assert\NotBlank(), new Assert\Length(min: 2)],
         ]));
 
         if (\count($violations) > 0) {
@@ -56,7 +56,7 @@ final class RegisterController
         $user = new User(
             email: $data['email'],
             passwordHash: '',
-            fullName: $data['full_name'],
+            fullName: $data['fullName'],
             role: UserRole::REPORTER,
         );
         $user->updatePassword($this->passwordHasher->hashPassword($user, $data['password']));

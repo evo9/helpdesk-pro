@@ -48,7 +48,7 @@ export async function createComment(
   return data
 }
 
-export async function getAuditLog(ticketId: string): Promise<AuditLog[]> {
-  const { data } = await apiClient.get<AuditLog[]>(`/tickets/${ticketId}/audit`)
+export async function getAuditLog(ticketId: string): Promise<PaginatedResponse<AuditLog>> {
+  const { data } = await apiClient.get<PaginatedResponse<AuditLog>>(`/tickets/${ticketId}/audit`)
   return data
 }

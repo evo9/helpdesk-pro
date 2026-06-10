@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import type { SlaStatus } from '@/api/types'
 
 interface SlaTimerProps {
@@ -28,6 +28,8 @@ const STATUS_CLASS: Record<SlaStatus, string> = {
 export default function SlaTimer({ dueAt, slaStatus }: SlaTimerProps) {
   const [now, setNow] = useState(Date.now())
 
+  const dueMs = useMemo(() => (dueAt ? new Date(dueAt).getTime() : 0), [dueAt])
+
   useEffect(() => {
     if (!dueAt || !slaStatus) return
     const id = setInterval(() => setNow(Date.now()), 1000)
@@ -36,7 +38,7 @@ export default function SlaTimer({ dueAt, slaStatus }: SlaTimerProps) {
 
   if (!dueAt || !slaStatus) return null
 
-  const delta = new Date(dueAt).getTime() - now
+  const delta = dueMs - now
   return (
     <span className={`text-sm tabular-nums ${STATUS_CLASS[slaStatus]}`}>
       {formatDelta(delta)}

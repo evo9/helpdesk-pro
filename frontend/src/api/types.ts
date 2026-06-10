@@ -7,20 +7,26 @@ export type SlaStatus = 'ok' | 'warning' | 'breached'
 export interface User {
   id: string
   email: string
-  name: string
-  roles: Role[]
+  fullName: string
+  role: string
+  isActive: boolean
+  createdAt: string
 }
 
 export interface Category {
   id: string
   name: string
+  description: string | null
+  isActive: boolean | null
 }
 
 export interface SlaPolicy {
   id: string
-  name: string
-  responseTime: number
-  resolutionTime: number
+  category: string              // IRI: /api/categories/{id}
+  categoryName: string
+  priority: string
+  responseHours: number
+  resolutionHours: number
 }
 
 export interface Ticket {
@@ -57,21 +63,22 @@ export interface Comment {
 export interface AuditLog {
   id: string
   action: string
-  oldValue: string | null
-  newValue: string | null
-  user: string                  // IRI: /api/users/{id}
+  payload: Record<string, unknown>
+  actorId: string
+  actorName: string
   createdAt: string
 }
 
 export interface DashboardSummary {
-  byStatus: Record<TicketStatus, number>
-  slaViolations: number
+  statuses: Record<string, number>
+  slaBreachedToday: number
 }
 
 export interface DashboardAgent {
-  agent: User
-  openTickets: number
-  resolvedToday: number
+  agentId: string
+  name: string
+  activeTickets: number
+  resolvedLast30d: number
 }
 
 export interface PaginatedResponse<T> {
@@ -83,6 +90,6 @@ export interface TicketFilters {
   status?: TicketStatus
   priority?: TicketPriority
   assignee?: string
-  slaStatus?: 'ok' | 'at_risk' | 'violated'
+  slaStatus?: SlaStatus
   page?: number
 }

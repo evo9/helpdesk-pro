@@ -25,4 +25,8 @@ describe('formatDelta', () => {
   it('prefixes + with hours when long overdue', () => {
     expect(formatDelta(-3_661_000)).toBe('+1h 1m')
   })
+
+  it('formats exactly 1 hour as 1h 0m', () => {
+    expect(formatDelta(3_600_000)).toBe('1h 0m')
+  })
 })
