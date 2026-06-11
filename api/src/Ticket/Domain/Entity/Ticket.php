@@ -16,6 +16,14 @@ use Symfony\Component\Uid\Uuid;
 
 #[ORM\Entity(repositoryClass: TicketRepository::class)]
 #[ORM\Table(name: 'tickets')]
+#[ORM\Index(name: 'idx_tickets_status', columns: ['status'])]
+#[ORM\Index(name: 'idx_tickets_assignee_id', columns: ['assignee_id'])]
+#[ORM\Index(name: 'idx_tickets_reporter_id', columns: ['reporter_id'])]
+#[ORM\Index(name: 'idx_tickets_category_id', columns: ['category_id'])]
+#[ORM\Index(name: 'idx_tickets_created_at', columns: ['created_at'])]
+#[ORM\Index(name: 'idx_tickets_assignee_status', columns: ['assignee_id', 'status'])]
+#[ORM\Index(name: 'idx_tickets_sla_response', columns: ['status', 'response_due_at'])]
+#[ORM\Index(name: 'idx_tickets_sla_resolution', columns: ['status', 'resolution_due_at'])]
 #[ORM\HasLifecycleCallbacks]
 class Ticket
 {
@@ -63,6 +71,10 @@ class Ticket
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $resolvedAt = null;
 
+    #[ORM\Version]
+    #[ORM\Column(type: 'integer')]
+    private int $version = 1;
+
     #[ORM\Column]
     private \DateTimeImmutable $createdAt;
 
@@ -96,6 +108,11 @@ class Ticket
     public function getId(): Uuid
     {
         return $this->id;
+    }
+
+    public function getVersion(): int
+    {
+        return $this->version;
     }
 
     public function getTitle(): string

@@ -12,6 +12,7 @@ use Symfony\Component\Uid\Uuid;
 
 #[ORM\Entity(repositoryClass: CommentRepository::class)]
 #[ORM\Table(name: 'comments')]
+#[ORM\Index(name: 'idx_comments_ticket_internal', columns: ['ticket_id', 'is_internal'])]
 class Comment
 {
     #[ORM\Id]

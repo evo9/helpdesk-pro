@@ -63,6 +63,7 @@ final class TicketStateProvider implements ProviderInterface
     {
         $resource = new TicketResource();
         $resource->id = (string) $ticket->getId();
+        $resource->version = $ticket->getVersion();
         $resource->title = $ticket->getTitle();
         $resource->description = $ticket->getDescription();
         $resource->status = $ticket->getStatus()->value;
