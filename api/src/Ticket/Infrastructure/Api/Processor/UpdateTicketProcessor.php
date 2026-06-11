@@ -60,10 +60,7 @@ final class UpdateTicketProcessor implements ProcessorInterface
                     $data->version ?? $previous->version ?? 1,
                 ));
             } catch (OptimisticLockException $e) {
-                throw new ConflictHttpException(
-                    'The ticket was modified by another request. Reload and try again.',
-                    $e,
-                );
+                throw new ConflictHttpException('The ticket was modified by another request. Reload and try again.', $e);
             } catch (InvalidStatusTransitionException $e) {
                 throw new UnprocessableEntityHttpException($e->getMessage(), $e);
             }
