@@ -52,6 +52,13 @@ final class TicketResource
     #[Groups(['ticket:read'])]
     public ?string $id = null;
 
+    /**
+     * Optimistic lock version — must be sent back unchanged on PATCH requests
+     * that modify status. A mismatch means another request already changed the ticket.
+     */
+    #[Groups(['ticket:read', 'ticket:update'])]
+    public ?int $version = null;
+
     #[Groups(['ticket:read', 'ticket:write'])]
     public ?string $title = null;
 

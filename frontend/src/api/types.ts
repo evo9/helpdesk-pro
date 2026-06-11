@@ -31,6 +31,7 @@ export interface SlaPolicy {
 
 export interface Ticket {
   id: string
+  version: number
   title: string
   description: string
   status: TicketStatus

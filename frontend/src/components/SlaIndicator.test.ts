@@ -25,4 +25,16 @@ describe('computeWorstStatus', () => {
     expect(computeWorstStatus('warning', 'warning')).toBe('warning')
     expect(computeWorstStatus('breached', 'breached')).toBe('breached')
   })
+
+  it('returns null when both statuses are undefined (API Platform skips null fields)', () => {
+    expect(computeWorstStatus(undefined, undefined)).toBe(null)
+    expect(computeWorstStatus(undefined, null)).toBe(null)
+    expect(computeWorstStatus(null, undefined)).toBe(null)
+  })
+
+  it('returns the non-undefined status when one side is undefined', () => {
+    expect(computeWorstStatus('ok', undefined)).toBe('ok')
+    expect(computeWorstStatus(undefined, 'warning')).toBe('warning')
+    expect(computeWorstStatus('breached', undefined)).toBe('breached')
+  })
 })

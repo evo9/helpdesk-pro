@@ -9,6 +9,7 @@ final class ChangeTicketStatus
     public function __construct(
         public readonly string $ticketId,
         public readonly string $newStatus,
+        public readonly int $version,
     ) {
     }
 }

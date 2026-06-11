@@ -12,6 +12,7 @@ use Symfony\Component\Uid\Uuid;
 
 #[ORM\Entity(repositoryClass: AuditLogRepository::class)]
 #[ORM\Table(name: 'audit_logs')]
+#[ORM\Index(name: 'idx_audit_logs_ticket_created', columns: ['ticket_id', 'created_at'])]
 class AuditLog
 {
     #[ORM\Id]

@@ -19,7 +19,9 @@ use App\Ticket\Infrastructure\Api\Resource\TicketResource;
 use App\Ticket\Infrastructure\Messenger\Message\TicketAssignedMessage;
 use App\Ticket\Infrastructure\Messenger\Message\TicketStatusChangedMessage;
 use App\Ticket\Infrastructure\Security\Voter\TicketVoter;
+use Doctrine\ORM\OptimisticLockException;
 use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
@@ -52,7 +54,13 @@ final class UpdateTicketProcessor implements ProcessorInterface
             $this->authorizeStatusChange($ticket, $data->status);
 
             try {
-                ($this->changeStatusHandler)(new ChangeTicketStatus($ticketId, $data->status));
+                ($this->changeStatusHandler)(new ChangeTicketStatus(
+                    $ticketId,
+                    $data->status,
+                    $data->version ?? $previous->version ?? 1,
+                ));
+            } catch (OptimisticLockException $e) {
+                throw new ConflictHttpException('The ticket was modified by another request. Reload and try again.', $e);
             } catch (InvalidStatusTransitionException $e) {
                 throw new UnprocessableEntityHttpException($e->getMessage(), $e);
             }

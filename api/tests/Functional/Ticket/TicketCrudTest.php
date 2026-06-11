@@ -272,6 +272,47 @@ final class TicketCrudTest extends WebTestCase
         $this->assertResponseStatusCodeSame(422);
     }
 
+    public function testResponseIncludesVersion(): void
+    {
+        $ticket = $this->createTicketDirectly($this->reporter);
+
+        $this->request('GET', '/api/tickets/'.$ticket->getId(), $this->agentToken);
+        $this->assertResponseIsSuccessful();
+        $this->assertArrayHasKey('version', $this->json());
+        $this->assertSame(1, $this->json()['version']);
+    }
+
+    public function testVersionIncrementsAfterStatusChange(): void
+    {
+        $ticket = $this->createTicketDirectly($this->reporter, $this->agent);
+
+        $this->patch('/api/tickets/'.$ticket->getId(), $this->agentToken, [
+            'status' => 'in_progress',
+            'version' => 1,
+        ]);
+        $this->assertResponseIsSuccessful();
+        $this->assertSame(2, $this->json()['version']);
+    }
+
+    public function testStaleVersionReturns409(): void
+    {
+        $ticket = $this->createTicketDirectly($this->reporter, $this->agent);
+
+        // First change succeeds — version goes from 1 to 2
+        $this->patch('/api/tickets/'.$ticket->getId(), $this->agentToken, [
+            'status' => 'in_progress',
+            'version' => 1,
+        ]);
+        $this->assertResponseIsSuccessful();
+
+        // Second request using the old version (1) simulates a stale concurrent client
+        $this->patch('/api/tickets/'.$ticket->getId(), $this->agentToken, [
+            'status' => 'pending',
+            'version' => 1,
+        ]);
+        $this->assertResponseStatusCodeSame(409);
+    }
+
     // ======= ASSIGN =======
 
     public function testManagerCanAssignTicket(): void
