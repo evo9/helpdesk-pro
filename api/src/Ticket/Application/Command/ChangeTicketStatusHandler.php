@@ -21,7 +21,7 @@ final class ChangeTicketStatusHandler
     }
 
     /**
-     * @throws OptimisticLockException   when concurrent update is detected (version mismatch)
+     * @throws OptimisticLockException          when concurrent update is detected (version mismatch)
      * @throws TicketNotFoundException
      * @throws InvalidStatusTransitionException
      */
